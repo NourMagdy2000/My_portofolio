@@ -36,9 +36,9 @@ const get_my_personal_data = async_wrapper(async (req, res, next) => {
 
         await pool.close();
     } catch (error) {
+const serverError = new AppError(500, "failed to fetch personal data", httpStatusText.FAIL);
 
-
-        return next(new AppError(500, "failed to fetch personal data", httpStatusText.FAIL));
+        return next(serverError);
     }
 });
 
