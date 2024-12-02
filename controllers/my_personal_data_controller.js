@@ -78,8 +78,8 @@ const insertPersonalData = async (req, res,next) => {
      
             // Write the INSERT query
             const query = `
-            INSERT INTO my_personal_data (name, age, phone,title,description,image)
-            VALUES (@name, @age, @phone,@title,@description,@image)
+            INSERT INTO my_personal_data (name, age, phone,title,description,image,cv)
+            VALUES (@name, @age, @phone,@title,@description,@image,@cv)
         `;
 
             // Execute the query with parameterized input nchar(40)
