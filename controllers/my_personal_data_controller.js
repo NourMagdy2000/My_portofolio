@@ -52,16 +52,27 @@ const insertPersonalData = async (req, res,next) => {
     const {  name, age, phone, title, description } = req.body; // Example input fields
 
     let errors = validationResult(req.body);
-
+    // Extract uploaded files
+    const imageFile = req.files?.image?.[0]; // Image file
+    const cvFile = req.files?.cv?.[0]; 
     if (!errors.isEmpty()) {
         const error = appError.createError(400, errors.array(), httpStatusText.FAIL);
         return next(error);
     }
     else {
+    // Validate file uploads
+    if (!imageFile || !cvFile) {
+        return res.status(400).json({
+            status: httpStatusText.FAIL,
+            message: 'Both image and CV files are required.',
+        });
+    }
 
-
-        let image = req.file.filename;
         try {
+
+                   // File paths
+        const imagePath = imageFile.filename; // Path to the uploaded image
+        const cvPath = cvFile.filename; 
             // Connect to the database
             const pool = await sql.connect(config);
      
@@ -78,7 +89,7 @@ const insertPersonalData = async (req, res,next) => {
                 .input('phone', sql.Int, phone)
                 .input('title', sql.NVarChar, title)
                 .input('description', sql.Text, description)
-                .input('image', sql.Text, image)
+                .input('image', sql.Text, imagePath).input('cv', sql.Text, cvPath)
                 .query(query);
 
             // Close the database connection
