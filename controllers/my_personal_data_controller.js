@@ -106,7 +106,7 @@ const insertPersonalData = async (req, res,next) => {
 
 const updatePersonalData = async (req, res, next) => {
     // Data to be inserted (can also be retrieved from req.body)
-    const { name, age, phone, title, description } = req.body; // Example input fields
+    const { name, age, phone, title, description,email } = req.body; // Example input fields
     let id = req.params.id;
 
     const errors = validationResult(req.body);
