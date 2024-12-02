@@ -49,7 +49,7 @@ const serverError = appError.createError(400, error.message, httpStatusText.FAIL
 
 const insertPersonalData = async (req, res,next) => {
     // Data to be inserted (can also be retrieved from req.body)
-    const {  name, age, phone, title, description } = req.body; // Example input fields
+    const {  name, age, phone, title, description ,email} = req.body; // Example input fields
 
     let errors = validationResult(req.body);
     // Extract uploaded files
@@ -78,8 +78,8 @@ const insertPersonalData = async (req, res,next) => {
      
             // Write the INSERT query
             const query = `
-            INSERT INTO my_personal_data (name, age, phone,title,description,image,cv)
-            VALUES (@name, @age, @phone,@title,@description,@image,@cv)
+            INSERT INTO my_personal_data (name, age, phone,title,description,image,cv,email)
+            VALUES (@name, @age, @phone,@title,@description,@image,@cv,@email)
         `;
 
             // Execute the query with parameterized input nchar(40)
@@ -89,7 +89,7 @@ const insertPersonalData = async (req, res,next) => {
                 .input('phone', sql.Int, phone)
                 .input('title', sql.NVarChar, title)
                 .input('description', sql.Text, description)
-                .input('image', sql.Text, imagePath).input('cv', sql.Text, cvPath)
+                .input('image', sql.Text, imagePath).input('cv', sql.Text, cvPath).input('email', sql.NVarChar, email)
                 .query(query);
 
             // Close the database connection
@@ -111,8 +111,9 @@ const updatePersonalData = async (req, res, next) => {
 
     const errors = validationResult(req.body);
 
-
-    let image = req.file.filename;
+   // Extract uploaded files
+   const imageFile = req.files?.image?.[0]; // Image file
+   const cvFile = req.files?.cv?.[0]; 
     if (!errors.isEmpty()) {
         const error = appError.createError(400, errors.array(), httpStatusText.FAIL);
         return next(error);
@@ -121,13 +122,17 @@ const updatePersonalData = async (req, res, next) => {
 
 
         try {
+
+                       // File paths
+        const imagePath = imageFile.filename; // Path to the uploaded image
+        const cvPath = cvFile.filename; 
             // Connect to the database
             const pool = await sql.connect(config);
 
             // Write the INSERT query
             const query = `
             UPDATE my_personal_data
-            SET name = @name, phone = @phone, title = @title, description = @description, image = @image, age = @age
+            SET name = @name, phone = @phone, title = @title, description = @description, image = @image, age = @age,email=@email,cv=@cv
             WHERE id = @id
         `;
 
@@ -139,7 +144,7 @@ const updatePersonalData = async (req, res, next) => {
                 .input('phone', sql.Int, phone)
                 .input('title', sql.NVarChar, title)
                 .input('description', sql.Text, description)
-                .input('image', sql.Text, image)
+                .input('image', sql.Text, imagePath).input('cv', sql.Text, cvPath).input('email', sql.NVarChar, email)
                 .query(query);
 
             // Close the database connection
